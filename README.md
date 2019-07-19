@@ -1,10 +1,9 @@
 # Serverless Offline Express
 
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
-[![License][ico-license]][link-license]
-[![NPM][ico-npm]][link-npm]
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Serverless v1.x plugin to run HTTP functions with [Express][link-express].
+A Serverless v1.x plugin to run HTTP functions with [Express](https://github.com/expressjs/express).
 
 This plugin is for you if you want to run offline multiple NodeJS functions, which use request and response Express framework.
 
