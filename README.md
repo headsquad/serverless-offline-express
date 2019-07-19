@@ -35,9 +35,9 @@ plugins:
 
 Plugin not support yet any configuration.
 
-## Run compatible function locally
+## Run Express server
 
-### Run a function locally
+### Configure function
 
 Thi plugin compatible with AWS Serverless functions configuration:
 
@@ -51,6 +51,8 @@ functions:
           path: myHttpUrlPath
           method: GET|PUT|POST|DELETE
 ```
+
+### Run
 
 ```bash
 $ serverless express
