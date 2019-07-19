@@ -5,15 +5,16 @@
 
 A Serverless v1.x plugin to run HTTP functions with [Express](https://github.com/expressjs/express).
 
-This plugin is for you if you want to run offline multiple NodeJS functions, which use request and response Express framework.
+This plugin is for you if you want to run offline multiple NodeJS/TypeScript functions, which use request and response Express framework.
 
 Some of serverless services like Google Gloud Functions or Firebase Function use standard Express requests and response on HTTP function invocation, 
 and this plugin allow to run them together offline and keep compatible develoment all Express based functions.
 
 ## Highlights
 
-* Configuration possibilities range from zero-config to fully customizable
+* Configuration possibilities range from zero-config 
 * Combine in same running process all HTTP handlers based on Express request/response.
+* Support TypeScript functions execution
 * Express 4 support
 * Support NPM and Yarn for packaging
 
