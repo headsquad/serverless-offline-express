@@ -41,6 +41,8 @@ Plugin not support yet any configuration.
 
 Thi plugin compatible with AWS Serverless functions configuration:
 
+```yaml
+# serverless.yml
 functions:
   myFunction:
     handler: handlers/myHandlerFile.myFunctionName
@@ -48,6 +50,7 @@ functions:
       - http: 
           path: myHttpUrlPath
           method: GET|PUT|POST|DELETE
+```
 
 ```bash
 $ serverless express
