@@ -1,6 +1,6 @@
 {
     "name": "serverless-offline-express",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Emulate SLS handlers offline using express",
     "license": "MIT",
     "main": "src/index.js",
@@ -9,7 +9,7 @@
         "type": "git",
         "url": "https://github.com/headsquad/serverless-offline-express.git"
     },
-    "homepage": "https://github.com/headsquad/serverless-offline-expressk#readme",
+    "homepage": "https://github.com/headsquad/serverless-offline-express",
     "keywords": [
         "serverless",
         "expressjs",
