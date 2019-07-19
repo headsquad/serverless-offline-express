@@ -1,18 +1,30 @@
 {
-  "name": "serverless-offline-express",
-  "version": "0.1.0",
-  "description": "Emulate SLS handlers offline using express",
-  "license": "MIT",
-  "main": "src/index.js",
-  "files": [
-    "src",
-    "package.json"
-  ],
-  "dependencies": {
-    "express": ">=4.5.0",
-    "serverless-webpack":">=5.3.1"
-  },
-  "peerDependencies": {
-    "serverless": ">= 1.0.0 < 2.0.0"
-  }
+    "name": "serverless-offline-express",
+    "version": "0.1.0",
+    "description": "Emulate SLS handlers offline using express",
+    "license": "MIT",
+    "main": "src/index.js",
+    "author": "Head Squad <headsquadbox@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/headsquad/serverless-offline-express.git"
+    },
+    "homepage": "https://github.com/headsquad/serverless-offline-expressk#readme",
+    "keywords": [
+        "serverless",
+        "expressjs",
+        "google-cloud-functions",
+        "firebase-functions"
+    ],
+    "files": [
+        "src",
+        "package.json"
+    ],
+    "dependencies": {
+        "express": ">=4.5.0",
+        "serverless-webpack": ">=5.3.1"
+    },
+    "peerDependencies": {
+        "serverless": ">= 1.0.0 < 2.0.0"
+    }
 }
