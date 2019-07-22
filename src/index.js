@@ -1,10 +1,6 @@
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
-const { performance, PerformanceObserver } = require('perf_hooks');
-const { exec } = require('child_process');
-
 const express = require('express');
 const ServerlessWebpack = require('serverless-webpack');
 
@@ -21,8 +17,7 @@ class OfflineExpress {
             express: {
                 usage: 'Running offline multiple Express request/response based Serverless functions',
                 lifecycleEvents: ['start']
-            },
-
+            }
         };
 
         this.hooks = {
@@ -31,14 +26,16 @@ class OfflineExpress {
     }
 
     async buildServer() {
+
         var webpackPlugin = new ServerlessWebpack(this.serverless, this.options);
         await webpackPlugin.validate();
         await webpackPlugin.compile();
         var app = express();
         const functionsBasePath = webpackPlugin.webpackOutputPath;
+        
         console.log();
+        
         webpackPlugin.entryFunctions.forEach(functionObject => {
-            console.debug(functionObject);
             var handler = require(path.join(functionsBasePath, functionObject.funcName, functionObject.handlerFile));
             
             functionObject.func.events.forEach((event) => {
@@ -77,7 +74,7 @@ class OfflineExpress {
         var logger = this.serverlessLog;
         server.listen(PORT, function () {
             console.log();
-            logger('Offline Express server started at http://' + HOST + ':' + PORT);
+            logger('Offline Express started at http://' + HOST + ':' + PORT);
         })
         return new Promise(() => { });
     }
