@@ -38,19 +38,29 @@ class OfflineExpress {
         const functionsBasePath = webpackPlugin.webpackOutputPath;
         console.log();
         webpackPlugin.entryFunctions.forEach(functionObject => {
+            console.debug(functionObject);
             var handler = require(path.join(functionsBasePath, functionObject.funcName, functionObject.handlerFile));
+            
             functionObject.func.events.forEach((event) => {
                 if (event && typeof event.http === 'object') {
                     var method = 'get';
                     var path = '/';
                     if (typeof event.http.method === 'string') {
                         method = event.http.method.toLowerCase();
+                        if(method === '*') {
+                            method = 'all';
+                        }
                     }
                     if (typeof event.http.path === 'string') {
                         path += event.http.path;
                     }
                     this.serverlessLog('Assign function:' + functionObject.funcName + ' to ' + method.toUpperCase() + ' ' + path);
-                    app[method](path, handler[functionObject.funcName]);
+                    var handlerFunctionName = functionObject.funcName;
+                    if(functionObject.func.handler.includes('.')) {
+                        handlerFunctionName = functionObject.func.handler.split('.')[1];
+                    }
+                    
+                    app[method](path, handler[handlerFunctionName]);
                 }
             })
 
