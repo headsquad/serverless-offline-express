@@ -19,7 +19,7 @@ class OfflineExpress {
 
         this.commands = {
             express: {
-                usage: 'Simulates',
+                usage: 'Running offline multiple Express request/response based Serverless functions',
                 lifecycleEvents: ['start']
             },
 
@@ -49,7 +49,7 @@ class OfflineExpress {
                     if (typeof event.http.path === 'string') {
                         path += event.http.path;
                     }
-                    this.serverlessLog('Assign function:' + functionObject.funcName + ' to '+ method.toUpperCase() + ' ' + path);
+                    this.serverlessLog('Assign function:' + functionObject.funcName + ' to ' + method.toUpperCase() + ' ' + path);
                     app[method](path, handler[functionObject.funcName]);
                 }
             })
@@ -61,11 +61,13 @@ class OfflineExpress {
 
     async start() {
         process.env.IS_OFFLINE = true;
+        const PORT = (process.env.EXPRESS_PORT) ? process.env.EXPRESS_PORT : 3000;
+        const HOST = (process.env.EXPRESS_HOST) ? process.env.EXPRESS_HOST : 'localhost';
         var server = await this.buildServer();
         var logger = this.serverlessLog;
-        server.listen(3000, function () {
+        server.listen(PORT, function () {
             console.log();
-            logger('Offline Express server started at http://localhost:3000');
+            logger('Offline Express server started at http://' + HOST + ':' + PORT);
         })
         return new Promise(() => { });
     }
