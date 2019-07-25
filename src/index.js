@@ -1,8 +1,13 @@
 'use strict';
 
+const _ = require('lodash');
 const path = require('path');
 const express = require('express');
+const webpack = require('webpack');
 const ServerlessWebpack = require('serverless-webpack');
+const BbPromise = require('bluebird');
+const webpackConfig = require('../webpack.config');
+const webpackMiddleware = require('webpack-dev-middleware');
 
 class OfflineExpress {
 
@@ -21,30 +26,41 @@ class OfflineExpress {
         };
 
         this.hooks = {
+            'express:before:start': BbPromise.resolve(),
             'express:start': this.start.bind(this),
         };
     }
 
     async buildServer() {
 
-        var webpackPlugin = new ServerlessWebpack(this.serverless, this.options);
-        await webpackPlugin.validate();
-        await webpackPlugin.compile();
+        var entries = {};
+        this.serverless.service.getAllFunctions().forEach((functionName) => {
+            var functionObject = this.serverless.service.getFunction(functionName);
+            entries[functionName] = functionObject.handler.split('.')[0]+'.js';
+        });
+        webpackConfig.entry = entries;
         var app = express();
-        const functionsBasePath = webpackPlugin.webpackOutputPath;
-        
+        console.debug(webpackConfig);
+
+        app.use(webpackMiddleware(webpack, {
+            noInfo: true, 
+            publicPath: webpackConfig.output.publicPath
+        }));
+
         console.log();
-        
+        return app;
+
+        const functionsBasePath = webpackPlugin.webpackOutputPath;
         webpackPlugin.entryFunctions.forEach(functionObject => {
             var handler = require(path.join(functionsBasePath, functionObject.funcName, functionObject.handlerFile));
-            
+
             functionObject.func.events.forEach((event) => {
                 if (event && typeof event.http === 'object') {
                     var method = 'get';
                     var path = '/';
                     if (typeof event.http.method === 'string') {
                         method = event.http.method.toLowerCase();
-                        if(method === '*') {
+                        if (method === '*') {
                             method = 'all';
                         }
                     }
@@ -53,10 +69,10 @@ class OfflineExpress {
                     }
                     this.serverlessLog('Assign function:' + functionObject.funcName + ' to ' + method.toUpperCase() + ' ' + path);
                     var handlerFunctionName = functionObject.funcName;
-                    if(functionObject.func.handler.includes('.')) {
+                    if (functionObject.func.handler.includes('.')) {
                         handlerFunctionName = functionObject.func.handler.split('.')[1];
                     }
-                    
+
                     app[method](path, handler[handlerFunctionName]);
                 }
             })
