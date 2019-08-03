@@ -7,7 +7,8 @@ const webpack = require('webpack');
 const ServerlessWebpack = require('serverless-webpack');
 const BbPromise = require('bluebird');
 const webpackConfig = require('../webpack.config');
-const webpackMiddleware = require('webpack-dev-middleware');
+const webpackDevMiddleware = require('webpack-dev-middleware')
+const webpackHotMiddleware = require('webpack-hot-middleware')
 
 class OfflineExpress {
 
@@ -36,46 +37,66 @@ class OfflineExpress {
         var entries = {};
         this.serverless.service.getAllFunctions().forEach((functionName) => {
             var functionObject = this.serverless.service.getFunction(functionName);
-            entries[functionName] = functionObject.handler.split('.')[0]+'.js';
+            entries[functionName] = './'+functionObject.handler.split('.')[0]+'.ts';
         });
         webpackConfig.entry = entries;
         var app = express();
-        console.debug(webpackConfig);
+        const compiler = webpack(webpackConfig).watch({},(err, stats)=>{
+            // stats.toJson().modules.forEach((module3)=>{
+            //     console.debug(module3.reasons);
+            // });
 
-        app.use(webpackMiddleware(webpack, {
-            noInfo: true, 
-            publicPath: webpackConfig.output.publicPath
-        }));
+            stats.toJson().chunks.forEach((chunk)=>{
+                var Module = module.constructor;
+                var m = new Module();
+                m._compile(chunk.modules[0].source, 'test');
+                console.debug( m.exports );
+            });
+        });
+                    // var devMiware = webpackDevMiddleware(compiler, {
+                    //     noInfo: false
+                    // })
 
-        console.log();
-        return app;
 
-        const functionsBasePath = webpackPlugin.webpackOutputPath;
-        webpackPlugin.entryFunctions.forEach(functionObject => {
-            var handler = require(path.join(functionsBasePath, functionObject.funcName, functionObject.handlerFile));
+        //   compiler.hooks.compilation.tap('HelloCompilationPlugin', compilation => {
+        //     compilation.hooks.succeedModule.tap('MyPlugin', (module2) => {
+        //         console.debug(module2.resource);
+        //         var filename = devMiware.getFilenameFromUrl(
+        //             '',
+        //             compiler,
+        //             module2.resource
+        //           )
+        //         console.debug('important stuff my plugin will use later', filename);
+        //       });
+        //   });
 
-            functionObject.func.events.forEach((event) => {
-                if (event && typeof event.http === 'object') {
-                    var method = 'get';
-                    var path = '/';
-                    if (typeof event.http.method === 'string') {
-                        method = event.http.method.toLowerCase();
-                        if (method === '*') {
-                            method = 'all';
-                        }
-                    }
-                    if (typeof event.http.path === 'string') {
-                        path += event.http.path;
-                    }
-                    this.serverlessLog('Assign function:' + functionObject.funcName + ' to ' + method.toUpperCase() + ' ' + path);
-                    var handlerFunctionName = functionObject.funcName;
-                    if (functionObject.func.handler.includes('.')) {
-                        handlerFunctionName = functionObject.func.handler.split('.')[1];
-                    }
+        this.serverless.service.getAllFunctions().forEach((functionName) => {
+            var functionObject = this.serverless.service.getFunction(functionName);
+            // console.debug(functionObject);
+            // var handler = require(path.join('./.webpack', functionObject.funcName, functionObject.handlerFile));
 
-                    app[method](path, handler[handlerFunctionName]);
-                }
-            })
+            // functionObject.func.events.forEach((event) => {
+            //     if (event && typeof event.http === 'object') {
+            //         var method = 'get';
+            //         var path = '/';
+            //         if (typeof event.http.method === 'string') {
+            //             method = event.http.method.toLowerCase();
+            //             if (method === '*') {
+            //                 method = 'all';
+            //             }
+            //         }
+            //         if (typeof event.http.path === 'string') {
+            //             path += event.http.path;
+            //         }
+            //         this.serverlessLog('Assign function:' + functionObject.funcName + ' to ' + method.toUpperCase() + ' ' + path);
+            //         var handlerFunctionName = functionObject.funcName;
+            //         if (functionObject.func.handler.includes('.')) {
+            //             handlerFunctionName = functionObject.func.handler.split('.')[1];
+            //         }
+
+            //         app[method](path, handler[handlerFunctionName]);
+            //     }
+            // })
 
         });
 

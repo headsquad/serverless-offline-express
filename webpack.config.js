@@ -1,10 +1,11 @@
-const slsw = require('serverless-webpack');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
+const midwareDev = require('webpack-dev-middleware')
 
 module.exports = {
     target: 'node',
     externals: [nodeExternals()],
+    watch: true,
     resolve: {
         extensions: [
             '.js',
@@ -13,13 +14,14 @@ module.exports = {
             '.tsx'
         ]
     },
+    mode: 'development',
     output: {
         publicPath: './.webpack'
     },
     plugins: [
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoEmitOnErrorsPlugin()
+        new webpack.NoEmitOnErrorsPlugin(),
     ],
     module: {
         rules: [
