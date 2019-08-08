@@ -32,12 +32,14 @@ class OfflineExpress {
         var entries = {};
         this.serverless.service.getAllFunctions().forEach((functionName) => {
             var functionObject = this.serverless.service.getFunction(functionName);
-            entries[functionName] = './'+functionObject.handler.split('.')[0]+'.ts';
+            entries[functionName] = './' + functionObject.handler.split('.')[0] + '.ts';
         });
         webpackConfig.entry = entries;
         var app = express();
-        const compiler = webpack(webpackConfig).watch({},(err, stats)=>{
-                stats.toJson().chunks.forEach((chunk)=>{
+
+
+        const compiler = webpack(webpackConfig).watch({}, (err, stats) => {
+            stats.toJson().chunks.forEach((chunk) => {
                 var Module = module.constructor;
                 var handlerModule = new Module();
                 handlerModule._compile(chunk.modules[0].source, 'express');
@@ -61,7 +63,17 @@ class OfflineExpress {
                         if (functionObject.handler.includes('.')) {
                             handlerFunctionName = functionObject.handler.split('.')[1];
                         }
+
+                        if (app._router) {
+                            var routes = app._router.stack;
+                            routes.forEach((layer, index) => {
+                                if (layer.route !== undefined && layer.route.path === path) {
+                                    routes.splice(index, 1);
+                                }
+                            })
+                        }
                         app[method](path, handler[handlerFunctionName]);
+
                     }
                 })
             });
