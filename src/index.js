@@ -7,11 +7,13 @@ const webpackConfig = require('../webpack.config');
 
 class OfflineExpress {
 
+
     constructor(serverless, options) {
         this.serverless = serverless;
         this.service = serverless.service;
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
         this.options = options;
+        this.chunksHashes = {};
         this.exitCode = 0;
 
         this.commands = {
@@ -28,7 +30,7 @@ class OfflineExpress {
     }
 
     async buildServer() {
-
+        var me = this;
         var entries = {};
         this.serverless.service.getAllFunctions().forEach((functionName) => {
             var functionObject = this.serverless.service.getFunction(functionName);
@@ -38,8 +40,13 @@ class OfflineExpress {
         var app = express();
 
 
-        const compiler = webpack(webpackConfig).watch({}, (err, stats) => {
+        await webpack(webpackConfig).watch({}, (err, stats) => {
             stats.toJson().chunks.forEach((chunk) => {
+                
+                if(me.chunksHashes[chunk.id] !== undefined && me.chunksHashes[chunk.id] === chunk.hash) {
+                    return true;
+                }
+
                 var Module = module.constructor;
                 var handlerModule = new Module();
                 handlerModule._compile(chunk.modules[0].source, 'express');
@@ -58,7 +65,11 @@ class OfflineExpress {
                         if (typeof event.http.path === 'string') {
                             path += event.http.path;
                         }
-                        this.serverlessLog('Assign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
+                        if(me.chunksHashes[chunk.id] === undefined) {
+                            this.serverlessLog('Assign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
+                        } else {
+                            this.serverlessLog('Reassign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
+                        }
                         var handlerFunctionName = functionObject.name;
                         if (functionObject.handler.includes('.')) {
                             handlerFunctionName = functionObject.handler.split('.')[1];
@@ -73,13 +84,12 @@ class OfflineExpress {
                             })
                         }
                         app[method](path, handler[handlerFunctionName]);
+                        me.chunksHashes[chunk.id] = chunk.hash
 
                     }
                 })
             });
         });
-
-
 
         return app;
     }
@@ -92,7 +102,7 @@ class OfflineExpress {
         var logger = this.serverlessLog;
         server.listen(PORT, function () {
             console.log();
-            logger('Offline Express started at http://' + HOST + ':' + PORT);
+            logger('Express started at http://' + HOST + ':' + PORT);
         })
         return new Promise(() => { });
     }
