@@ -3,7 +3,7 @@
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Serverless v1.x plugin to run HTTP functions with [Express](https://github.com/expressjs/express).
+A Serverless v1.x plugin to run HTTP and PubSub functions with [Express](https://github.com/expressjs/express).
 
 This plugin is for you if you want to run offline multiple NodeJS/TypeScript functions, which use request and response Express framework.
 
@@ -13,7 +13,7 @@ and this plugin allow to run them together offline and keep compatible develomen
 ## Highlights
 
 * Configuration possibilities range from zero-config 
-* Combine in same running process all HTTP handlers based on Express request/response.
+* Combine in same running process all HTTP and PubSub handlers based on Express request/response.
 * Support TypeScript functions execution
 * Express 4 support
 * Support NPM and Yarn for packaging
@@ -35,11 +35,7 @@ plugins:
 
 Plugin not support yet any configuration.
 
-## Run Express server
-
-### Configure function
-
-Thi plugin compatible with AWS Serverless functions configuration:
+## Configure function
 
 ```yaml
 # serverless.yml
@@ -50,9 +46,14 @@ functions:
       - http: 
           path: myHttpUrlPath
           method: GET|PUT|POST|DELETE
+  myPubSubFunction:
+    handler: handlers/myHandlerFile.myFunctionName
+    events:
+      - pubsub: 
+          topic: myPubSubMessageTopic
 ```
 
-### Run
+## Run Express server
 
 ```bash
 $ serverless express
