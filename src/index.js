@@ -1,12 +1,12 @@
 'use strict';
 
+const fs = require('fs')
 const express = require('express');
 const webpack = require('webpack');
 const BbPromise = require('bluebird');
 const webpackConfig = require('../webpack.config');
 
 class OfflineExpress {
-
 
     constructor(serverless, options) {
         this.serverless = serverless;
@@ -34,7 +34,13 @@ class OfflineExpress {
         var entries = {};
         this.serverless.service.getAllFunctions().forEach((functionName) => {
             var functionObject = this.serverless.service.getFunction(functionName);
-            entries[functionName] = './' + functionObject.handler.split('.')[0] + '.ts';
+            var functionBasePath = './' + functionObject.handler.split('.')[0];
+            if (fs.existsSync(functionBasePath + '.ts')) {
+                entries[functionName] = functionBasePath + '.ts';
+            } else {
+                entries[functionName] = functionBasePath + '.js';
+            }
+                
         });
         webpackConfig.entry = entries;
         var app = express();
@@ -42,8 +48,8 @@ class OfflineExpress {
 
         await webpack(webpackConfig).watch({}, (err, stats) => {
             stats.toJson().chunks.forEach((chunk) => {
-                
-                if(me.chunksHashes[chunk.id] !== undefined && me.chunksHashes[chunk.id] === chunk.hash) {
+
+                if (me.chunksHashes[chunk.id] !== undefined && me.chunksHashes[chunk.id] === chunk.hash) {
                     return true;
                 }
 
@@ -57,7 +63,7 @@ class OfflineExpress {
                         var method = 'get';
                         var path = '/';
 
-                        if(typeof event.http === 'object') {
+                        if (typeof event.http === 'object') {
                             if (typeof event.http.method === 'string') {
                                 method = event.http.method.toLowerCase();
                                 if (method === '*') {
@@ -69,7 +75,7 @@ class OfflineExpress {
                             }
                         }
 
-                        if(typeof event.pubsub === 'object') {
+                        if (typeof event.pubsub === 'object') {
                             path = '/pubsub/';
                             if (typeof event.pubsub.topic === 'string') {
                                 path += event.pubsub.topic;
@@ -77,9 +83,9 @@ class OfflineExpress {
                                 return true;
                             }
                         }
-                       
-                        
-                        if(me.chunksHashes[chunk.id] === undefined) {
+
+
+                        if (me.chunksHashes[chunk.id] === undefined) {
                             this.serverlessLog('Assign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
                         } else {
                             this.serverlessLog('Reassign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
