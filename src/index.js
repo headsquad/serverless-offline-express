@@ -53,18 +53,32 @@ class OfflineExpress {
                 var handler = handlerModule.exports;
                 var functionObject = this.serverless.service.getFunction(chunk.id);
                 functionObject.events.forEach((event) => {
-                    if (event && typeof event.http === 'object') {
+                    if (event && (typeof event.http === 'object' || typeof event.pubsub === 'object')) {
                         var method = 'get';
                         var path = '/';
-                        if (typeof event.http.method === 'string') {
-                            method = event.http.method.toLowerCase();
-                            if (method === '*') {
-                                method = 'all';
+
+                        if(typeof event.http === 'object') {
+                            if (typeof event.http.method === 'string') {
+                                method = event.http.method.toLowerCase();
+                                if (method === '*') {
+                                    method = 'all';
+                                }
+                            }
+                            if (typeof event.http.path === 'string') {
+                                path += event.http.path;
                             }
                         }
-                        if (typeof event.http.path === 'string') {
-                            path += event.http.path;
+
+                        if(typeof event.pubsub === 'object') {
+                            path = '/pubsub/';
+                            if (typeof event.pubsub.topic === 'string') {
+                                path += event.pubsub.topic;
+                            } else {
+                                return true;
+                            }
                         }
+                       
+                        
                         if(me.chunksHashes[chunk.id] === undefined) {
                             this.serverlessLog('Assign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
                         } else {
