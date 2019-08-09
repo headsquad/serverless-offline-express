@@ -1,10 +1,9 @@
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
-const midwareDev = require('webpack-dev-middleware')
-
+const path = require('path');
 module.exports = {
     target: 'node',
-    externals: [nodeExternals()],
+    // externals: [nodeExternals()],
     watch: true,
     resolve: {
         extensions: [
@@ -14,14 +13,16 @@ module.exports = {
             '.tsx'
         ]
     },
-    mode: 'development',
+    mode: 'production',
     output: {
-        publicPath: './.webpack'
+        libraryTarget: 'commonjs',
+        filename: '[name].js',
+        path: path.resolve(__dirname, 'dist')
     },
     plugins: [
-        new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoEmitOnErrorsPlugin(),
+        // new webpack.optimize.OccurrenceOrderPlugin(),
+        // new webpack.HotModuleReplacementPlugin(),
+        // new webpack.NoEmitOnErrorsPlugin(),
     ],
     module: {
         rules: [

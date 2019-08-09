@@ -45,18 +45,19 @@ class OfflineExpress {
         webpackConfig.entry = entries;
         var app = express();
 
-
         await webpack(webpackConfig).watch({}, (err, stats) => {
             stats.toJson().chunks.forEach((chunk) => {
+                console.debug("=========================================================================");
 
                 if (me.chunksHashes[chunk.id] !== undefined && me.chunksHashes[chunk.id] === chunk.hash) {
                     return true;
                 }
 
-                var Module = module.constructor;
-                var handlerModule = new Module();
-                handlerModule._compile(chunk.modules[0].source, 'express');
-                var handler = handlerModule.exports;
+                // var Module = module.constructor;
+                // var handlerModule = new Module();
+                // handlerModule._compile(chunk.modules[0].source, 'express');
+                var handler = require(webpackConfig.output.path + '/' +chunk.files[0]);
+                console.debug(handler);
                 var functionObject = this.serverless.service.getFunction(chunk.id);
                 functionObject.events.forEach((event) => {
                     if (event && (typeof event.http === 'object' || typeof event.pubsub === 'object')) {
