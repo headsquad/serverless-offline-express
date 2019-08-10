@@ -50,8 +50,8 @@ class OfflineExpress {
         var app = express();
 
         webpack(webpackConfig).watch({}, (err, stats) => {
-            if(err !== null) {
-                console.log(err);
+            if (err !== null) {
+                console.log('WEBPACK ERROR:', err);
             }
             stats.toJson().chunks.forEach((chunk) => {
 
@@ -66,6 +66,10 @@ class OfflineExpress {
 
                 var functionName = chunk.names[0];
                 var functionObject = this.serverless.service.getFunction(functionName);
+                var handlerFunctionName = functionName;
+                if (functionObject.handler.includes('.')) {
+                    handlerFunctionName = functionObject.handler.split('.')[1];
+                }
                 functionObject.events.forEach((event) => {
                     if (event && (typeof event.http === 'object' || typeof event.pubsub === 'object')) {
                         var method = 'get';
@@ -92,11 +96,6 @@ class OfflineExpress {
                             }
                         }
 
-                        var handlerFunctionName = functionName;
-                        if (functionObject.handler.includes('.')) {
-                            handlerFunctionName = functionObject.handler.split('.')[1];
-                        }
-
                         if (app._router) {
                             var routes = app._router.stack;
                             routes.forEach((layer, index) => {
@@ -109,7 +108,44 @@ class OfflineExpress {
 
                         this.serverlessLog('Assign function:' + functionName + ' to ' + method.toUpperCase() + ' ' + path);
 
-                        app[method](path, handler[handlerFunctionName]);
+                        if (typeof event.http === 'object') {
+                            app[method](path, handler[handlerFunctionName]);
+                        }
+
+                        if (typeof event.pubsub === 'object') {
+                            app.get(path, (request, response) => {
+                                var handlerFunction = handler[handlerFunctionName];
+                                if (typeof request.query.message === 'undefined'
+                                    && typeof request.query.attributes === 'undefined') {
+                                    return response.send('Message or Attributes not provided.');
+                                }
+
+                                var pubSubMessage = request.query.message;
+
+                                var toJSON = () => {
+                                    var result = {}
+                                    try {
+                                        result = JSON.parse(pubSubMessage);
+                                    } catch(error) {
+                                        result = {}
+                                    }
+                                    return result;
+                                };
+
+                                var message = {
+                                    attributes: request.query.attributes,
+                                    data: Buffer.from(pubSubMessage).toString('base64'),
+                                    json: toJSON(),
+                                    toJSON: toJSON
+                                };
+                                var context = {
+                                    timestamp: new Date().getTime(),
+                                    eventId: new Date().getTime()
+                                }
+                                response.send(handlerFunction(message, context));
+                            });
+                        }
+
                         me.chunksHashes[chunk.id] = chunk.hash
 
                     }

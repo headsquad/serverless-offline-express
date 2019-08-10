@@ -13,11 +13,12 @@ and this plugin allow to run them together offline and keep compatible develomen
 ## Highlights
 
 * Configuration possibilities range from zero-config 
-* Combine in same running Express process all HTTP and PubSub handlers.
+* Combine in same running Express process all HTTP and PubSub handlers
 * Support TypeScript functions execution
 * Express 4 support
 * Support NPM and Yarn for packaging
 * Hot Module Reload support
+* Emulate [Message](https://firebase.google.com/docs/reference/functions/functions.pubsub.Message) interface for PubSub functions 
 
 ## Install
 
@@ -50,7 +51,7 @@ functions:
           path: myHttpUrlPath
           method: GET|PUT|POST|DELETE
 
-# Accessible by URL: /pubsub/myPubSubFunction
+# Accessible by URL: /pubsub/myPubSubMessageTopic?message={"name":"test"}&attributes[name]=test_attribute
   myPubSubFunction:
     handler: handlers/anotherHandlerFile.myPubSubFunctionName
     events:
@@ -65,5 +66,5 @@ $ serverless express
 ```
 
 ## Environment variables
-* EXPRESS_HOST - Host name where Express will start
-* EXPRESS_PORT - Port where Express will start
+* **EXPRESS_HOST** - Host name where Express will start
+* **EXPRESS_PORT** - Port where Express will start
