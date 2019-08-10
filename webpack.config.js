@@ -3,8 +3,6 @@ const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 module.exports = {
     target: 'node',
-    // externals: [nodeExternals()],
-    watch: true,
     resolve: {
         extensions: [
             '.js',
@@ -17,13 +15,8 @@ module.exports = {
     output: {
         libraryTarget: 'commonjs',
         filename: '[name].js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve('.express')
     },
-    plugins: [
-        // new webpack.optimize.OccurrenceOrderPlugin(),
-        // new webpack.HotModuleReplacementPlugin(),
-        // new webpack.NoEmitOnErrorsPlugin(),
-    ],
     module: {
         rules: [
             {

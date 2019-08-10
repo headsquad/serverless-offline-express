@@ -5,6 +5,7 @@ const express = require('express');
 const webpack = require('webpack');
 const BbPromise = require('bluebird');
 const webpackConfig = require('../webpack.config');
+const MemoryFS = require('memory-fs');
 
 class OfflineExpress {
 
@@ -31,28 +32,36 @@ class OfflineExpress {
 
     async buildServer() {
         var me = this;
-        var entries = {};
-        this.serverless.service.getAllFunctions().forEach((functionName) => {
-            var functionObject = this.serverless.service.getFunction(functionName);
-            var functionBasePath = './' + functionObject.handler.split('.')[0];
-            if (fs.existsSync(functionBasePath + '.ts')) {
-                entries[functionName] = functionBasePath + '.ts';
-            } else {
-                entries[functionName] = functionBasePath + '.js';
-            }
-                
-        });
-        webpackConfig.entry = entries;
+
+        webpackConfig.entry = () => {
+            var entries = {};
+            this.serverless.service.getAllFunctions().forEach((functionName) => {
+                var functionObject = this.serverless.service.getFunction(functionName);
+                var functionBasePath = './' + functionObject.handler.split('.')[0];
+                if (fs.existsSync(functionBasePath + '.ts')) {
+                    entries[functionName] = functionBasePath + '.ts';
+                } else {
+                    entries[functionName] = functionBasePath + '.js';
+                }
+
+            });
+            return entries;
+        }
+
         var app = express();
 
-        await webpack(webpackConfig).watch({}, (err, stats) => {
+        webpack(webpackConfig).watch({}, (err, stats) => {
+            if(err !== null) {
+                console.log(err);
+            }
             stats.toJson().chunks.forEach((chunk) => {
 
                 if (me.chunksHashes[chunk.id] !== undefined && me.chunksHashes[chunk.id] === chunk.hash) {
                     return true;
                 }
-              
-                var handlerFile = webpackConfig.output.path + '/' +chunk.files[0];
+
+                var handlerFile = webpackConfig.output.path + '/' + chunk.files[0];
+
                 delete require.cache[handlerFile];
                 var handler = require(handlerFile);
 
@@ -84,12 +93,6 @@ class OfflineExpress {
                             }
                         }
 
-
-                        if (me.chunksHashes[chunk.id] === undefined) {
-                            this.serverlessLog('Assign function:' + functionName + ' to ' + method.toUpperCase() + ' ' + path);
-                        } else {
-                            this.serverlessLog('Reassign function:' + functionName + ' to ' + method.toUpperCase() + ' ' + path);
-                        }
                         var handlerFunctionName = functionName;
                         if (functionObject.handler.includes('.')) {
                             handlerFunctionName = functionObject.handler.split('.')[1];
@@ -104,6 +107,9 @@ class OfflineExpress {
                                 }
                             })
                         }
+
+                        this.serverlessLog('Assign function:' + functionName + ' to ' + method.toUpperCase() + ' ' + path);
+
                         app[method](path, handler[handlerFunctionName]);
                         me.chunksHashes[chunk.id] = chunk.hash
 
@@ -122,7 +128,6 @@ class OfflineExpress {
         var server = await this.buildServer();
         var logger = this.serverlessLog;
         server.listen(PORT, function () {
-            console.log();
             logger('Express started at http://' + HOST + ':' + PORT);
         })
         return new Promise(() => { });
