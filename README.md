@@ -13,10 +13,11 @@ and this plugin allow to run them together offline and keep compatible develomen
 ## Highlights
 
 * Configuration possibilities range from zero-config 
-* Combine in same running process all HTTP and PubSub handlers based on Express request/response.
+* Combine in same running Express process all HTTP and PubSub handlers.
 * Support TypeScript functions execution
 * Express 4 support
 * Support NPM and Yarn for packaging
+* Hot Module Reload support
 
 ## Install
 
@@ -39,6 +40,8 @@ Plugin not support yet any configuration.
 
 ```yaml
 # serverless.yml
+
+# Accessible by URL: /myFunction
 functions:
   myFunction:
     handler: handlers/myHandlerFile.myFunctionName
@@ -46,8 +49,10 @@ functions:
       - http: 
           path: myHttpUrlPath
           method: GET|PUT|POST|DELETE
+
+# Accessible by URL: /pubsub/myPubSubFunction
   myPubSubFunction:
-    handler: handlers/myHandlerFile.myFunctionName
+    handler: handlers/anotherHandlerFile.myPubSubFunctionName
     events:
       - pubsub: 
           topic: myPubSubMessageTopic
