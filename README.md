@@ -63,3 +63,7 @@ functions:
 ```bash
 $ serverless express
 ```
+
+## Environment variables
+EXPRESS_HOST - Host name where Express will start
+EXPRESS_PORT - Port where Express will start
