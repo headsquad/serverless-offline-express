@@ -24,7 +24,8 @@
     ],
     "dependencies": {
         "express": ">=4.5.0",
-        "webpack": ">=4.30.0"
+        "webpack": ">=4.30.0",
+        "bluebird": "3.5.5"
     },
     "peerDependencies": {
         "serverless": ">= 1.0.0 < 2.0.0"
