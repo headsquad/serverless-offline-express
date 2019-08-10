@@ -1,6 +1,6 @@
 {
     "name": "serverless-offline-express",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "description": "Emulate SLS handlers offline using express",
     "license": "MIT",
     "main": "src/index.js",
@@ -20,7 +20,8 @@
     ],
     "files": [
         "src",
-        "package.json"
+        "package.json",
+        "webpack.config.js"
     ],
     "dependencies": {
         "express": ">=4.5.0",
