@@ -47,18 +47,17 @@ class OfflineExpress {
 
         await webpack(webpackConfig).watch({}, (err, stats) => {
             stats.toJson().chunks.forEach((chunk) => {
-                console.debug("=========================================================================");
 
                 if (me.chunksHashes[chunk.id] !== undefined && me.chunksHashes[chunk.id] === chunk.hash) {
                     return true;
                 }
+              
+                var handlerFile = webpackConfig.output.path + '/' +chunk.files[0];
+                delete require.cache[handlerFile];
+                var handler = require(handlerFile);
 
-                // var Module = module.constructor;
-                // var handlerModule = new Module();
-                // handlerModule._compile(chunk.modules[0].source, 'express');
-                var handler = require(webpackConfig.output.path + '/' +chunk.files[0]);
-                console.debug(handler);
-                var functionObject = this.serverless.service.getFunction(chunk.id);
+                var functionName = chunk.names[0];
+                var functionObject = this.serverless.service.getFunction(functionName);
                 functionObject.events.forEach((event) => {
                     if (event && (typeof event.http === 'object' || typeof event.pubsub === 'object')) {
                         var method = 'get';
@@ -87,11 +86,11 @@ class OfflineExpress {
 
 
                         if (me.chunksHashes[chunk.id] === undefined) {
-                            this.serverlessLog('Assign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
+                            this.serverlessLog('Assign function:' + functionName + ' to ' + method.toUpperCase() + ' ' + path);
                         } else {
-                            this.serverlessLog('Reassign function:' + functionObject.name + ' to ' + method.toUpperCase() + ' ' + path);
+                            this.serverlessLog('Reassign function:' + functionName + ' to ' + method.toUpperCase() + ' ' + path);
                         }
-                        var handlerFunctionName = functionObject.name;
+                        var handlerFunctionName = functionName;
                         if (functionObject.handler.includes('.')) {
                             handlerFunctionName = functionObject.handler.split('.')[1];
                         }
@@ -100,6 +99,7 @@ class OfflineExpress {
                             var routes = app._router.stack;
                             routes.forEach((layer, index) => {
                                 if (layer.route !== undefined && layer.route.path === path) {
+                                    this.serverlessLog('Remove previous version of function:' + functionName);
                                     routes.splice(index, 1);
                                 }
                             })
