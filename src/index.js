@@ -5,7 +5,6 @@ const express = require('express');
 const webpack = require('webpack');
 const BbPromise = require('bluebird');
 const webpackConfig = require('../webpack.config');
-const MemoryFS = require('memory-fs');
 
 class OfflineExpress {
 
