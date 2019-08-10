@@ -12,6 +12,7 @@
     "homepage": "https://github.com/headsquad/serverless-offline-express",
     "keywords": [
         "serverless",
+        "offline",
         "express",
         "expressjs",
         "google-cloud-functions",
