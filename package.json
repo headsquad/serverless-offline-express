@@ -1,7 +1,7 @@
 {
     "name": "serverless-offline-express",
     "version": "0.4.1",
-    "description": "Emulate SLS handlers offline using express",
+    "description": "Start Serverless handlers offline using Express",
     "license": "MIT",
     "main": "src/index.js",
     "author": "Head Squad <headsquadbox@gmail.com>",
