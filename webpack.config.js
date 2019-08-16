@@ -12,7 +12,7 @@ module.exports = {
         ]
     },
     externals: [nodeExternals()],
-    mode: 'development  ',
+    mode: 'development',
     output: {
         libraryTarget: 'commonjs',
         filename: '[name].js',
