@@ -1,6 +1,8 @@
 const path = require('path');
+const nodeExternals = require('webpack-node-externals');
 module.exports = {
     target: 'node',
+    watch: true,
     resolve: {
         extensions: [
             '.js',
@@ -9,6 +11,7 @@ module.exports = {
             '.tsx'
         ]
     },
+    externals: [nodeExternals()],
     mode: 'production',
     output: {
         libraryTarget: 'commonjs',

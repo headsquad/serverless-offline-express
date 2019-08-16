@@ -1,6 +1,5 @@
 'use strict';
 
-const fs = require('fs')
 const express = require('express');
 const webpack = require('webpack');
 const BbPromise = require('bluebird');
@@ -31,18 +30,12 @@ class OfflineExpress {
 
     async buildServer() {
         var me = this;
-
         webpackConfig.entry = () => {
             var entries = {};
             this.serverless.service.getAllFunctions().forEach((functionName) => {
                 var functionObject = this.serverless.service.getFunction(functionName);
                 var functionBasePath = './' + functionObject.handler.split('.')[0];
-                if (fs.existsSync(functionBasePath + '.ts')) {
-                    entries[functionName] = functionBasePath + '.ts';
-                } else {
-                    entries[functionName] = functionBasePath + '.js';
-                }
-
+                entries[functionName] = functionBasePath;
             });
             return entries;
         }
@@ -126,7 +119,7 @@ class OfflineExpress {
                                     var result = {}
                                     try {
                                         result = JSON.parse(pubSubMessage);
-                                    } catch(error) {
+                                    } catch (error) {
                                         result = {}
                                     }
                                     return result;
