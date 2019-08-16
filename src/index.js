@@ -53,7 +53,6 @@ class OfflineExpress {
                 }
 
                 var handlerFile = webpackConfig.output.path + '/' + chunk.files[0];
-
                 delete require.cache[handlerFile];
                 var handler = require(handlerFile);
 
